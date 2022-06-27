@@ -1,0 +1,7 @@
+docker run --name ma_db_01 -d -e POSTGRES_PASSWORD=postgres -p 5430:5432 -v ~/ma/ma_db_01:/var/lib/postgresql/data mdillon/postgis
+
+docker run -i -t -d --name ma_import_01 -p 9000:9000 -v ~/ma/ma_import_01:/code ubuntu:latest /bin/bash
+
+docker run -i -t -d --name ma_process_01 -p 9001:9001 -v ~/ma/ma_process_01:/code ubuntu:latest /bin/bash
+
+docker run -i -t -d --name ma_anaconda_01 -p 8888:8888 -v ~/ma/ma_anaconda_01:/opt/notebooks continuumio/anaconda3 /bin/bash -c "/opt/conda/bin/conda install jupyter -y --quiet && mkdir /opt/notebooks && /opt/conda/bin/jupyter notebook --notebook-dir=/opt/notebooks --ip='*' --port=8888 --no-browser --allow-root"

@@ -1,0 +1,81 @@
+apt-get update
+apt-get update && apt-get install -y python3 python3-dev python3-pip python3-setuptools python3-wheel --no-install-recommends && pip3 install --upgrade pip && rm -rf /var/lib/apt/lists/*
+apt-get update
+pip3 install numpy && pip3 install matplotlib && pip3 install psycopg2-binary
+pip3 install geopandas
+pip3 install ogr
+
+apt-get update
+apt-get install osm2pgsql
+# Parameter für Zeitzone setzen --> 8 für Europa, 7 für Berlin
+
+apt-get update
+apt-get install wget
+
+cd code
+mkdir osm_download
+cd osm_download
+
+apt update && apt upgrade
+apt install curl
+
+curl https://download.geofabrik.de/europe/germany/sachsen-latest.osm.pbf -o /code/osm_download/sachsen-latest.osm.pbf
+
+osm2pgsql --create --slim --hstore --multi-geometry --database=osm --user=postgres --password --host=ma_db_01 --port=5432 --bbox=13.4,50.9,14.07,51.3 /code/osm_download/sachsen-latest.osm.pbf
+
+
+#GDAL installieren
+
+apt-get update
+add-apt-repository ppa:ubuntugis/ppa
+#aufgrund "command not found": erst noch weitere Installationen
+apt install software-properties-common
+add-apt-repository ppa:ubuntugis/ppa
+apt-get update
+apt-get install gdal-bin
+ogrinfo --version
+
+#Python Bindings
+apt-get install libgdal-dev
+export CPLUS_INCLUDE_PATH=/usr/include/gdal
+export C_INCLUDE_PATH=/usr/include/gdal
+
+pip3 install GDAL==3.2.1
+#requirement already satisfied... da schon installiert 
+
+#Import von ESRI Shapefile oder GeoJSON in DB
+#mit cd zu dem Verzeichnis der Datei gehen
+ogr2ogr -f "PostgreSQL" PG:"dbname='postgres' host='ma_db_01' port='5432' user='postgres' password='postgres'" "isochrones5000m_foot-hiking_dd.geojson" -nln AOI_Dresden -lco GEOMETRY_NAME=geometry
+ogr2ogr -f "PostgreSQL" PG:"dbname='postgres' host='ma_db_01' port='5432' user='postgres' password='postgres'" "isochrones5000m_foot-hiking_hd.geojson" -nln AOI_Heidelberg -lco GEOMETRY_NAME=geometry
+cd ..
+ogr2ogr -f "PostgreSQL" PG:"dbname='postgres' host='ma_db_01' port='5432' user='postgres' password='postgres'" "dd_targets_IST_zustand.shp" -nln IST_Stand_targets_Dresden -lco GEOMETRY_NAME=geometry -nlt geometry
+ogr2ogr -f "PostgreSQL" PG:"dbname='postgres' host='ma_db_01' port='5432' user='postgres' password='postgres'" "hd_targets_IST_zustand.shp" -nln IST_Stand_targets_Heidelberg -lco GEOMETRY_NAME=geometry -nlt geometry
+cd usw.
+ogr2ogr -f "PostgreSQL" PG:"dbname='postgres' host='ma_db_01' port='5432' user='postgres' password='postgres'" "L568_polygone_Spielbereiche.shp" -nln L568_polygone_Spielbereiche -lco GEOMETRY_NAME=geometry -nlt geometry
+ogr2ogr -f "PostgreSQL" PG:"dbname='postgres' host='ma_db_01' port='5432' user='postgres' password='postgres'" "L569_polygone_Park_und_Gruenanlagen.shp" -nln L569_polygone_Park_und_Gruenanlagen -lco GEOMETRY_NAME=geometry -nlt geometry
+
+ogr2ogr -f "PostgreSQL" PG:"dbname='postgres' host='ma_db_01' port='5432' user='postgres' password='postgres'" "ESP_private_flaechen_4326.shp" -nln ESP_private_flaechen_4326 -lco GEOMETRY_NAME=geometry -nlt geometry
+
+ogr2ogr -f "PostgreSQL" PG:"dbname='postgres' host='ma_db_01' port='5432' user='postgres' password='postgres'" "flurstuecke_2020_03_24_alle_wgs84.geojson" -nln flst_AnfragePiraten_2020_03_24_alle_4326 -lco GEOMETRY_NAME=geometry -nlt geometry
+
+ogr2ogr -f "PostgreSQL" PG:"dbname='postgres' host='ma_db_01' port='5432' user='postgres' password='postgres'" "flst_eigentumsformen_dd_2012.shp" -nln flst_eigentumsformen_dd_2012 -lco GEOMETRY_NAME=geometry -nlt geometry
+
+
+
+#doch alles in eine DB importieren! Abfragen werden dadurch einfacher, keine Erweiterungen nötig
+
+#mit cd zu dem Verzeichnis der Datei gehen
+ogr2ogr -f "PostgreSQL" PG:"dbname='osm' host='ma_db_01' port='5432' user='postgres' password='postgres'" "isochrones5000m_foot-hiking_dd.geojson" -nln AOI_Dresden -lco GEOMETRY_NAME=geometry
+ogr2ogr -f "PostgreSQL" PG:"dbname='osm' host='ma_db_01' port='5432' user='postgres' password='postgres'" "isochrones5000m_foot-hiking_hd.geojson" -nln AOI_Heidelberg -lco GEOMETRY_NAME=geometry
+cd ..
+ogr2ogr -f "PostgreSQL" PG:"dbname='osm' host='ma_db_01' port='5432' user='postgres' password='postgres'" "dd_targets_IST_zustand.shp" -nln IST_Stand_targets_Dresden -lco GEOMETRY_NAME=geometry -nlt geometry
+ogr2ogr -f "PostgreSQL" PG:"dbname='osm' host='ma_db_01' port='5432' user='postgres' password='postgres'" "hd_targets_IST_zustand.shp" -nln IST_Stand_targets_Heidelberg -lco GEOMETRY_NAME=geometry -nlt geometry
+cd usw.
+ogr2ogr -f "PostgreSQL" PG:"dbname='osm' host='ma_db_01' port='5432' user='postgres' password='postgres'" "L568_polygone_Spielbereiche.shp" -nln L568_polygone_Spielbereiche -lco GEOMETRY_NAME=geometry -nlt geometry
+ogr2ogr -f "PostgreSQL" PG:"dbname='osm' host='ma_db_01' port='5432' user='postgres' password='postgres'" "L569_polygone_Park_und_Gruenanlagen.shp" -nln L569_polygone_Park_und_Gruenanlagen -lco GEOMETRY_NAME=geometry -nlt geometry
+
+ogr2ogr -f "PostgreSQL" PG:"dbname='osm' host='ma_db_01' port='5432' user='postgres' password='postgres'" "ESP_private_flaechen_4326.shp" -nln ESP_private_flaechen_4326 -lco GEOMETRY_NAME=geometry -nlt geometry
+
+ogr2ogr -f "PostgreSQL" PG:"dbname='osm' host='ma_db_01' port='5432' user='postgres' password='postgres'" "flurstuecke_2020_03_24_alle_wgs84.geojson" -nln flst_AnfragePiraten_2020_03_24_alle_4326 -lco GEOMETRY_NAME=geometry -nlt geometry
+
+ogr2ogr -f "PostgreSQL" PG:"dbname='osm' host='ma_db_01' port='5432' user='postgres' password='postgres'" "flst_eigentumsformen_dd_2012.shp" -nln flst_eigentumsformen_dd_2012 -lco GEOMETRY_NAME=geometry -nlt geometry

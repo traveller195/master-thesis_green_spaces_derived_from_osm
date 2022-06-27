@@ -1,0 +1,20 @@
+#Paketverwaltung von conda verwenden. Alternativ pip3.
+
+apt-get update
+/opt/conda/bin/conda update -n base -c defaults conda
+/opt/conda/bin/conda install python
+/opt/conda/bin/conda install anaconda-client
+/opt/conda/bin/conda install numpy pandas geopandas scipy requests scikit-learn matplotlib seaborn pyyaml jupyter -y
+/opt/conda/bin/conda install -c conda-forge altair vega_datasets
+/opt/conda/bin/conda upgrade dask
+pip3 install geopy psycopg2-binary jupyter-nbutils mlxtend utm
+
+pip3 install lckr-jupyterlab-variableinspector
+
+
+/opt/conda/bin/jupyter notebook --ip='*' --port=8888 --no-browser --allow-root
+
+#nun startet das Jupyter Notebook. 
+#entweder URL mit Token in Browser aufrufen.
+#alternativ evtl. um Notebook zu starten: http://127.0.0.1:8888/tree/opt/notebooks
+

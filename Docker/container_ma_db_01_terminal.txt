@@ -1,0 +1,6 @@
+#Create Database
+sudo su – postgres 
+psql –c „CREATE DATABASE osm;“
+#Create Extensions
+psql –d osm –c „CREATE EXTENSION postgis;“
+psql –d osm –c „CREATE EXTENSION hstore;“
